@@ -79,8 +79,8 @@ class CarSimulator:
         avg_v = (v_old + self.v) / 2
         if abs(angular_velocity) < 1e-6:
             # Straight path
-            self.x = x_old + avg_v * math.cos(self.theta) * dt
-            self.y = y_old + avg_v * math.sin(self.theta) * dt
+            self.x = x_old + avg_v * math.cos(theta_old) * dt
+            self.y = y_old + avg_v * math.sin(theta_old) * dt
         else:
             # exact integration along a circular arc using average velocity
             self.x = x_old + (avg_v / angular_velocity) * (
@@ -139,11 +139,12 @@ def main():
 
     n_steps = int(t_end / dt)
     for i in range(n_steps + 1):
-        # Accelerate in straight line until v = 10 m/s
         if simulator.v < target_speed:
+            # Accelerate in straight line until v = 10 m/s
             a = acceleration_rate
             wheel_angle = 0  # straight line
-        else: # Move in circle at constant velocity
+        else: 
+            # Move in circle at constant velocity
             a = 0
             wheel_angle = wheel_angle_turn
 
