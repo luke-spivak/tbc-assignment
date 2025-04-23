@@ -46,10 +46,11 @@ class CarSimulator:
         v (float): Current velocity (m/s).
         theta (float): Current heading angle (radians).
     """
+
     def __init__(self, wheelbase, v0, theta0):
         self.wheelbase = wheelbase
         self.x = 0
-        self.y = 0 
+        self.y = 0
         self.v = v0
         self.theta = theta0
 
@@ -86,12 +87,13 @@ class CarSimulator:
             self.y = y_old + v_old * math.sin(theta_old) * dt
         else:
             # circular arc (analytic) at constant v_old, constant delta
-            R = v_old / omega # turning radius
+            R = v_old / omega  # turning radius
             self.x = x_old + R * (math.sin(self.theta) - math.sin(theta_old))
             self.y = y_old + R * (math.cos(theta_old) - math.cos(self.theta))
 
 
 def plot_simulation(times, x_positions, y_positions, long_accels, lat_accels):
+    """Plot trajectory and accelerations"""
     # Plot trajectory
     plt.figure()
     plt.plot(x_positions, y_positions)
@@ -143,7 +145,7 @@ def main():
             # Accelerate in straight line until v = 10 m/s
             a = acceleration_rate
             wheel_angle = 0  # straight line
-        else: 
+        else:
             # Move in circle at constant velocity
             a = 0
             wheel_angle = wheel_angle_turn
@@ -158,7 +160,9 @@ def main():
         lat_accels.append(simulator.v**2 * math.tan(wheel_angle) / wheelbase)
 
         simulator.simulatorStep(a, wheel_angle, dt)
-    
+
     plot_simulation(times, x_positions, y_positions, long_accels, lat_accels)
 
-main()
+
+if __name__ == "__main__":
+    main()
