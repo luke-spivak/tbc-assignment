@@ -64,31 +64,31 @@ class CarSimulator:
             wheel_angle (float): Steering angle of the front wheels (radians).
             dt (float): Duration of the time step (s).
         """
+        # 1) cache old state
         v_old = self.v
         x_old = self.x
         y_old = self.y
         theta_old = self.theta
 
+        # 2) update speed
         self.v = v_old + a * dt
 
-        # Calculate change in heading angle based on wheel angle and velocity
-        angular_velocity = (self.v * math.tan(wheel_angle)) / self.wheelbase
-        self.theta = self.theta + angular_velocity * dt
+        # 3) compute angular velocity and heading increment
+        omega = (v_old * math.tan(wheel_angle)) / self.wheelbase
+        delta_theta = omega * dt
+        # advance heading
+        self.theta = theta_old + delta_theta
 
-        # Update position
-        avg_v = (v_old + self.v) / 2
-        if abs(angular_velocity) < 1e-6:
-            # Straight path
-            self.x = x_old + avg_v * math.cos(theta_old) * dt
-            self.y = y_old + avg_v * math.sin(theta_old) * dt
+        # 4) update position
+        if abs(omega) < 1e-6:
+            # straight‐line: use old heading for displacement
+            self.x = x_old + v_old * math.cos(theta_old) * dt
+            self.y = y_old + v_old * math.sin(theta_old) * dt
         else:
-            # exact integration along a circular arc using average velocity
-            self.x = x_old + (avg_v / angular_velocity) * (
-                math.sin(self.theta) - math.sin(theta_old)
-            )
-            self.y = y_old + (avg_v / angular_velocity) * (
-                math.cos(theta_old) - math.cos(self.theta)
-            )
+            # circular arc (analytic) at constant v_old, constant delta
+            R = v_old / omega # turning radius
+            self.x = x_old + R * (math.sin(self.theta) - math.sin(theta_old))
+            self.y = y_old + R * (math.cos(theta_old) - math.cos(self.theta))
 
 
 def plot_simulation(times, x_positions, y_positions, long_accels, lat_accels):
@@ -138,7 +138,7 @@ def main():
     lat_accels = []
 
     n_steps = int(t_end / dt)
-    for i in range(n_steps + 1):
+    for i in range(n_steps):
         if simulator.v < target_speed:
             # Accelerate in straight line until v = 10 m/s
             a = acceleration_rate
@@ -158,7 +158,6 @@ def main():
         lat_accels.append(simulator.v**2 * math.tan(wheel_angle) / wheelbase)
 
         simulator.simulatorStep(a, wheel_angle, dt)
-        t += dt
     
     plot_simulation(times, x_positions, y_positions, long_accels, lat_accels)
 
