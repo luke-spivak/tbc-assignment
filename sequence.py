@@ -32,7 +32,7 @@ def mat_mult(A, B):
 
 
 def mat_pow(M, n):
-    """Compute Mⁿ by binary exponentiation in O(log n) multiplies."""
+    """Compute M^n by binary exponentiation in O(log n) multiplies."""
     # Initialize R = identity
     R = [[1, 0], [0, 1]]
     while n > 0:
